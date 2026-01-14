@@ -1,0 +1,43 @@
+# Ultralytics YOLO 🚀, AGPL-3.0 license
+# YOLO11 object detection model with PConv improvements
+
+# Parameters
+nc: 80 # number of classes
+scales: # model compound scaling constants
+  n: [0.50, 0.25, 1024]
+
+# YOLO11n backbone
+backbone:
+  # [from, repeats, module, args]
+  - [-1, 1, Conv, [64, 3, 2]]  # 0-P1/2
+  - [-1, 1, Conv, [128, 3, 2]] # 1-P2/4
+  - [-1, 2, C3k2, [128, False, 0.25]] # 2
+  - [-1, 1, Conv, [256, 3, 2]] # 3-P3/8
+  - [-1, 2, C3_PConv, [256, False, 0.25]] # 4  <-- PConv (P3)
+  - [-1, 1, Conv, [512, 3, 2]] # 5-P4/16
+  - [-1, 2, C3_PConv, [512, True]] # 6  <-- PConv (P4)
+  - [-1, 1, Conv, [1024, 3, 2]] # 7-P5/32
+  - [-1, 2, C3_PConv, [1024, True]] # 8  <-- PConv (P5)
+  - [-1, 1, SPPF, [1024, 5]]   # 9
+
+# YOLO11n head
+head:
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]] # 10
+  - [[-1, 6], 1, Concat, [1]] # 11 cat backbone P4 (第6层)
+  - [-1, 2, C3k2, [512, False]] # 12
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]] # 13
+  - [[-1, 4], 1, Concat, [1]] # 14 cat backbone P3 (第4层)
+  - [-1, 2, C3k2, [256, False]] # 15 (输出 P3)
+
+  - [-1, 1, Conv, [256, 3, 2]] # 16
+  - [[-1, 12], 1, Concat, [1]] # 17 cat head P4 (连接第12层)
+  - [-1, 2, C3k2, [512, False]] # 18 (输出 P4)
+
+  - [-1, 1, Conv, [512, 3, 2]] # 19
+  - [[-1, 9], 1, Concat, [1]] # 20 cat head P5 (连接第9层)
+  - [-1, 2, C3k2, [1024, True]] # 21 (输出 P5)
+
+  # ❌ 错误原版: [[16, 19, 22], 1, Detect, [nc]]
+  # ✅ 修正版本: 连接实际的输出层 15, 18, 21
+  - [[15, 18, 21], 1, Detect, [nc]] # Detect(P3, P4, P5)
