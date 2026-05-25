@@ -1,16 +1,18 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import os
+
 import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 
 # 设置字体
 def get_chinese_font():
-    font_candidates = [r'C:\Windows\Fonts\msyh.ttf', r'C:\Windows\Fonts\simhei.ttf']
+    font_candidates = [r"C:\Windows\Fonts\msyh.ttf", r"C:\Windows\Fonts\simhei.ttf"]
     for f in font_candidates:
-        if os.path.exists(f): return fm.FontProperties(fname=f)
-    return fm.FontProperties(family='sans-serif')
+        if os.path.exists(f):
+            return fm.FontProperties(fname=f)
+    return fm.FontProperties(family="sans-serif")
 
 
 zh_font = get_chinese_font()
@@ -26,15 +28,11 @@ def main():
     try:
         df_base = pd.read_csv(os.path.join(root_dir, "baseline_yolo11n", "results.csv"))
         df_base.columns = [c.strip() for c in df_base.columns]
-        best_base = df_base.iloc[df_base['metrics/mAP50-95(B)'].idxmax()]
-        p = best_base['metrics/precision(B)']
-        r = best_base['metrics/recall(B)']
+        best_base = df_base.iloc[df_base["metrics/mAP50-95(B)"].idxmax()]
+        p = best_base["metrics/precision(B)"]
+        r = best_base["metrics/recall(B)"]
         f1 = 2 * p * r / (p + r + 1e-6)
-        base_metrics = [
-            best_base['metrics/mAP50-95(B)'],
-            best_base['metrics/mAP50(B)'],
-            p, r, f1
-        ]
+        base_metrics = [best_base["metrics/mAP50-95(B)"], best_base["metrics/mAP50(B)"], p, r, f1]
     except:
         print("⚠️ 未找到 Baseline 数据，使用默认值")
 
@@ -43,20 +41,16 @@ def main():
     try:
         df_our = pd.read_csv(os.path.join(root_dir, "ours_pconv_extended_1000e", "results.csv"))
         df_our.columns = [c.strip() for c in df_our.columns]
-        best_our = df_our.iloc[df_our['metrics/mAP50-95(B)'].idxmax()]
-        p = best_our['metrics/precision(B)']
-        r = best_our['metrics/recall(B)']
+        best_our = df_our.iloc[df_our["metrics/mAP50-95(B)"].idxmax()]
+        p = best_our["metrics/precision(B)"]
+        r = best_our["metrics/recall(B)"]
         f1 = 2 * p * r / (p + r + 1e-6)
-        our_metrics = [
-            best_our['metrics/mAP50-95(B)'],
-            best_our['metrics/mAP50(B)'],
-            p, r, f1
-        ]
+        our_metrics = [best_our["metrics/mAP50-95(B)"], best_our["metrics/mAP50(B)"], p, r, f1]
     except:
         print("⚠️ 未找到 Ours 1000e 数据，请检查路径")
 
     # 2. 绘图设置
-    labels = ['mAP 50-95', 'mAP 50', 'Precision', 'Recall', 'F1-Score']
+    labels = ["mAP 50-95", "mAP 50", "Precision", "Recall", "F1-Score"]
     num_vars = len(labels)
 
     # 计算角度
@@ -66,15 +60,15 @@ def main():
     base_metrics += base_metrics[:1]
     our_metrics += our_metrics[:1]
 
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+    _fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
 
     # 绘制 Baseline
-    ax.plot(angles, base_metrics, color='#7f8c8d', linewidth=2, linestyle='--', label='Baseline')
-    ax.fill(angles, base_metrics, color='#7f8c8d', alpha=0.1)
+    ax.plot(angles, base_metrics, color="#7f8c8d", linewidth=2, linestyle="--", label="Baseline")
+    ax.fill(angles, base_metrics, color="#7f8c8d", alpha=0.1)
 
     # 绘制 Ours
-    ax.plot(angles, our_metrics, color='#C0392B', linewidth=3, label='PConv-YOLO')
-    ax.fill(angles, our_metrics, color='#C0392B', alpha=0.2)
+    ax.plot(angles, our_metrics, color="#C0392B", linewidth=3, label="PConv-YOLO")
+    ax.fill(angles, our_metrics, color="#C0392B", alpha=0.2)
 
     # 装饰
     ax.set_theta_offset(np.pi / 2)  # 旋转起始位置
@@ -87,11 +81,11 @@ def main():
     plt.yticks([0.2, 0.4, 0.6, 0.8], ["0.2", "0.4", "0.6", "0.8"], color="grey", size=10)
     plt.ylim(0, 1.0)
 
-    plt.title('模型综合性能五维对比 (Radar Chart)', fontproperties=zh_font, size=16, y=1.05, fontweight='bold')
-    plt.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1), prop=zh_font)
+    plt.title("模型综合性能五维对比 (Radar Chart)", fontproperties=zh_font, size=16, y=1.05, fontweight="bold")
+    plt.legend(loc="upper right", bbox_to_anchor=(1.2, 1.1), prop=zh_font)
 
     plt.tight_layout()
-    plt.savefig('五维雷达图.png', dpi=300)
+    plt.savefig("五维雷达图.png", dpi=300)
     print("✅ 五维雷达图已生成！")
     plt.show()
 
