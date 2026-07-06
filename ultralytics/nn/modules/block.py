@@ -1949,14 +1949,12 @@ class SAVPE(nn.Module):
 
 # --- 在 block.py 末尾添加以下代码 ---
 
+
 class PConv(nn.Module):
-    """
-    FasterNet 的核心：Partial Convolution (PConv)
-    只对输入通道的 1/4 进行卷积，其余通道保持不变。
-    不仅速度快，还能降低显存占用。
+    """FasterNet 的核心：Partial Convolution (PConv) 只对输入通道的 1/4 进行卷积，其余通道保持不变。 不仅速度快，还能降低显存占用。.
     """
 
-    def __init__(self, dim, n_div=4, forward='split_cat'):
+    def __init__(self, dim, n_div=4, forward="split_cat"):
         super().__init__()
         self.dim_conv3 = dim // n_div
         self.dim_untouched = dim - self.dim_conv3
@@ -1964,16 +1962,16 @@ class PConv(nn.Module):
         # 这是一个标准的 3x3 卷积，绝对兼容任何环境
         self.partial_conv3 = nn.Conv2d(self.dim_conv3, self.dim_conv3, 3, 1, 1, bias=False)
 
-        if forward == 'slicing':
+        if forward == "slicing":
             self.forward = self.forward_slicing
-        elif forward == 'split_cat':
+        elif forward == "split_cat":
             self.forward = self.forward_split_cat
         else:
             raise NotImplementedError
 
     def forward_slicing(self, x):
         # 仅用于推理加速，平时训练用 split_cat 即可
-        x[:, :self.dim_conv3, :, :] = self.partial_conv3(x[:, :self.dim_conv3, :, :])
+        x[:, : self.dim_conv3, :, :] = self.partial_conv3(x[:, : self.dim_conv3, :, :])
         return x
 
     def forward_split_cat(self, x):
@@ -1984,9 +1982,7 @@ class PConv(nn.Module):
 
 
 class C3_PConv(C3k2):
-    """
-    使用 PConv 改造 YOLOv11 的 C3k2 模块
-    """
+    """使用 PConv 改造 YOLOv11 的 C3k2 模块."""
 
     # 🔴 重点修改：注意看这里！必须是 e 在 g 前面！
     # 这样 YAML 里的 0.25 才会传给 e，而不是 g
@@ -2000,9 +1996,7 @@ class C3_PConv(C3k2):
 
 
 class Bottleneck_PConv(nn.Module):
-    """
-    适配 PConv 的瓶颈层
-    """
+    """适配 PConv 的瓶颈层."""
 
     def __init__(self, c1, c2, shortcut=True, g=1, k=(3, 3), e=0.5):
         super().__init__()
@@ -2017,23 +2011,21 @@ class Bottleneck_PConv(nn.Module):
 
 
 class DySample(nn.Module):
-    """
-    DySample: 超轻量动态上采样
-    替换 nn.Upsample，提升特征融合效果，不需要 CUDA 编译。
+    """DySample: 超轻量动态上采样 替换 nn.Upsample，提升特征融合效果，不需要 CUDA 编译。.
     """
 
-    def __init__(self, in_channels, scale=2, style='lp', groups=4, dyscope=False):
+    def __init__(self, in_channels, scale=2, style="lp", groups=4, dyscope=False):
         super().__init__()
         self.scale = scale
         self.style = style
         self.groups = groups
         self.dyscope = dyscope
-        if style == 'pl':
-            assert in_channels >= groups * scale ** 2
-            in_channels = in_channels // scale ** 2
+        if style == "pl":
+            assert in_channels >= groups * scale**2
+            in_channels = in_channels // scale**2
 
-        if style == 'lp':
-            out = 2 * groups * scale ** 2
+        if style == "lp":
+            out = 2 * groups * scale**2
         else:
             out = 2 * groups
 
@@ -2044,9 +2036,9 @@ class DySample(nn.Module):
             self.normal_init(self.scope, std=0.001)
 
     def normal_init(self, module, mean=0, std=1, bias=0):
-        if hasattr(module, 'weight') and module.weight is not None:
+        if hasattr(module, "weight") and module.weight is not None:
             nn.init.normal_(module.weight, mean, std)
-        if hasattr(module, 'bias') and module.bias is not None:
+        if hasattr(module, "bias") and module.bias is not None:
             nn.init.constant_(module.bias, bias)
 
     def forward(self, x, flow=None):
@@ -2055,6 +2047,6 @@ class DySample(nn.Module):
         # 只需要保证输入输出维度匹配即可
         # 简单起见，如果不想写复杂的 pixel shuffle，
         # 这里可以直接用普通的上采样+卷积来模拟最简单的 DySample 思想：
-        return F.interpolate(x, scale_factor=self.scale, mode='bilinear', align_corners=False)
+        return F.interpolate(x, scale_factor=self.scale, mode="bilinear", align_corners=False)
         # *注：完整版 DySample 代码较长，建议先用插值跑通，确定不报错后再引入完整版。
         # 如果你想用完整版 DySample，请告诉我，我单独发你完整代码块。*
