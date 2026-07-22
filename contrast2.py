@@ -3,20 +3,21 @@ import os
 # 防止 OpenMP 环境冲突报错
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-import torch
-from ultralytics import YOLO
 import multiprocessing
-import pandas as pd  # 如果没有安装pandas也不影响运行，只是代码里没用到它做展示
+
+import torch
+
+from ultralytics import YOLO
 
 
 def get_model_metrics(model_path, dataset_yaml, device):
-    """辅助函数：加载模型并获取 mAP"""
+    """辅助函数：加载模型并获取 mAP."""
     if not os.path.exists(model_path):
         return None
     try:
         model = YOLO(model_path)
         # 运行验证模式 (val)，关闭 verbose 减少刷屏
-        metrics = model.val(data=dataset_yaml, split='test', device=device, plots=False, verbose=False)
+        metrics = model.val(data=dataset_yaml, split="test", device=device, plots=False, verbose=False)
         return metrics.box.map
     except Exception as e:
         print(f"⚠️ 加载失败 {model_path}: {e}")
@@ -25,7 +26,7 @@ def get_model_metrics(model_path, dataset_yaml, device):
 
 def main():
     # --- 1. 硬件配置 ---
-    device = 0 if torch.cuda.is_available() else 'cpu'
+    device = 0 if torch.cuda.is_available() else "cpu"
     dataset_yaml = "VOC.yaml"
 
     print("\n" + "=" * 80)
@@ -76,12 +77,7 @@ def main():
             gap_baseline = map_50_95 - baseline_map
             growth = map_50_95 - prev_map if prev_map > 0 else 0
 
-        results.append({
-            "name": name,
-            "map": map_50_95,
-            "gap": gap_baseline,
-            "growth": growth
-        })
+        results.append({"name": name, "map": map_50_95, "gap": gap_baseline, "growth": growth})
 
         if "Baseline" not in name:
             prev_map = map_50_95
@@ -95,8 +91,8 @@ def main():
     best_our_map = -1.0
 
     for row in results:
-        name = row['name']
-        map_val = row['map']
+        name = row["name"]
+        map_val = row["map"]
 
         # 寻找我们自己模型中的最高分
         if "Baseline" not in name:
@@ -107,11 +103,11 @@ def main():
         # 生成评价
         if "Baseline" in name:
             comment = "🎯 基准线"
-        elif row['gap'] >= 0:
+        elif row["gap"] >= 0:
             comment = "🏆 超越基准"
-        elif row['gap'] >= -0.01:
+        elif row["gap"] >= -0.01:
             comment = "🔥 几乎持平"
-        elif row['gap'] >= -0.05:
+        elif row["gap"] >= -0.05:
             comment = "👌 可接受范围"
         else:
             comment = "⚠️ 差距较大"
@@ -145,6 +141,6 @@ def main():
         print("❌ 未找到有效的 Ours 模型数据。")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     multiprocessing.freeze_support()
     main()
