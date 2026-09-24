@@ -1,7 +1,9 @@
-import torch
-from ultralytics import YOLO
 import multiprocessing
 import os
+
+import torch
+
+from ultralytics import YOLO
 
 
 def main():
@@ -11,7 +13,9 @@ def main():
 
     # 1. 【关键修改】这里必须指向 "extended_200e" 文件夹里的 last.pt
     # 这样才是基于 200 轮的智商继续往下学
-    last_weight_path = r"D:\PythonSoftware\code\YoloSsd\ultralytics\runs\voc_compare\ours_pconv_extended_500e\weights\last.pt"
+    last_weight_path = (
+        r"D:\PythonSoftware\code\YoloSsd\ultralytics\runs\voc_compare\ours_pconv_extended_500e\weights\last.pt"
+    )
 
     # 2. 【关键修改】改个新名字，代表冲击 300 轮
     new_project_name = "ours_pconv_extended_600e"
@@ -20,7 +24,7 @@ def main():
     ADDITIONAL_EPOCHS = 100
 
     # 4. 显卡与内存设置
-    device = 0 if torch.cuda.is_available() else 'cpu'
+    device = 0 if torch.cuda.is_available() else "cpu"
     # 既然你上次用 2 跑通了，就保持 2。如果报错再改回 0。
     WORKERS = 2
     BATCH_SIZE = 64
@@ -34,7 +38,7 @@ def main():
 
     # 检查文件是否存在
     if not os.path.exists(last_weight_path):
-        print(f"❌ 错误：找不到文件！\n请去文件夹确认 'ours_pconv_extended_300e' 是否存在，或者文件名是否正确。")
+        print("❌ 错误：找不到文件！\n请去文件夹确认 'ours_pconv_extended_300e' 是否存在，或者文件名是否正确。")
         return
 
     try:
@@ -54,11 +58,11 @@ def main():
             name=new_project_name,
             exist_ok=True,
             amp=True,
-            cache=False
+            cache=False,
         )
 
         print("\n" + "=" * 60)
-        print(f"🎉 500轮训练完成！")
+        print("🎉 500轮训练完成！")
         print(f"📂 结果保存在: runs/voc_compare/{new_project_name}")
         print("=" * 60)
 
@@ -66,6 +70,6 @@ def main():
         print(f"❌ 训练启动失败: {e}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     multiprocessing.freeze_support()
     main()
