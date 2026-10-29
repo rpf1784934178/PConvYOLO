@@ -1,7 +1,10 @@
-import torch
-from ultralytics import YOLO
 import multiprocessing
 import os
+
+import torch
+
+from ultralytics import YOLO
+
 
 def main():
     # --- 1. 硬件配置 ---
@@ -9,7 +12,7 @@ def main():
         device = 0
         print(f"🔥 显卡就绪: {torch.cuda.get_device_name(0)}")
     else:
-        device = 'cpu'
+        device = "cpu"
 
     dataset_yaml = "VOC.yaml"
 
@@ -29,7 +32,7 @@ def main():
         try:
             model_base = YOLO(baseline_path)
             # 运行验证模式 (val) 获取指标
-            metrics_base = model_base.val(data=dataset_yaml, split='test', device=device, plots=False)
+            metrics_base = model_base.val(data=dataset_yaml, split="test", device=device, plots=False)
             map_base = metrics_base.box.map
             print(f"   ---> Baseline mAP50-95: {map_base:.4f}")
         except Exception as e:
@@ -51,14 +54,14 @@ def main():
         try:
             model_our = YOLO(pconv_path)
             # 运行验证模式 (val)
-            metrics_our = model_our.val(data=dataset_yaml, split='test', device=device, plots=False)
+            metrics_our = model_our.val(data=dataset_yaml, split="test", device=device, plots=False)
             map_our = metrics_our.box.map
             print(f"   ---> Ours mAP50-95: {map_our:.4f}")
         except Exception as e:
             print(f"❌ 读取 Ours 模型失败: {e}")
             map_our = 0
     else:
-        print(f"❌ 找不到 PConv (400e) 模型文件，请检查训练是否已完成！")
+        print("❌ 找不到 PConv (400e) 模型文件，请检查训练是否已完成！")
         print(f"   路径: {pconv_path}")
         map_our = 0
 
@@ -88,6 +91,6 @@ def main():
         print("\n💡 分析：精度仍有差距。可能需要检查 PConv 模块是否替换得太多，影响了特征提取能力。")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     multiprocessing.freeze_support()
     main()

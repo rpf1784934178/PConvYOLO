@@ -9,7 +9,7 @@ scales: # model compound scaling constants
 # YOLO11n backbone
 backbone:
   # [from, repeats, module, args]
-  - [-1, 1, Conv, [64, 3, 2]]  # 0-P1/2
+  - [-1, 1, Conv, [64, 3, 2]] # 0-P1/2
   - [-1, 1, Conv, [128, 3, 2]] # 1-P2/4
   - [-1, 2, C3k2, [128, False, 0.25]] # 2
   - [-1, 1, Conv, [256, 3, 2]] # 3-P3/8
@@ -18,7 +18,7 @@ backbone:
   - [-1, 2, C3_PConv, [512, True]] # 6  <-- PConv (P4)
   - [-1, 1, Conv, [1024, 3, 2]] # 7-P5/32
   - [-1, 2, C3_PConv, [1024, True]] # 8  <-- PConv (P5)
-  - [-1, 1, SPPF, [1024, 5]]   # 9
+  - [-1, 1, SPPF, [1024, 5]] # 9
 
 # YOLO11n head
 head:

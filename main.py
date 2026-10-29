@@ -1,7 +1,9 @@
-import torch
-from ultralytics import YOLO
 import multiprocessing
 import os
+
+import torch
+
+from ultralytics import YOLO
 
 
 def main():
@@ -10,7 +12,7 @@ def main():
         device = 0
         print(f"🔥 显卡就绪: {torch.cuda.get_device_name(0)}")
     else:
-        device = 'cpu'
+        device = "cpu"
 
     dataset_yaml = "VOC.yaml"
     BATCH_SIZE = 64
@@ -35,7 +37,7 @@ def main():
         print("⏩ 跳过训练，直接加载模型...")
         try:
             model_base = YOLO(baseline_path)
-            metrics_base = model_base.val(data=dataset_yaml, split='test', device=device, plots=False)
+            metrics_base = model_base.val(data=dataset_yaml, split="test", device=device, plots=False)
             map_base = metrics_base.box.map
         except Exception as e:
             print(f"⚠️ 读取旧模型失败: {e}")
@@ -46,9 +48,17 @@ def main():
             model_base = YOLO("yolo11n.yaml")
             model_base.load("yolo11n.pt")
             results_base = model_base.train(
-                data=dataset_yaml, epochs=EPOCHS, imgsz=640, batch=BATCH_SIZE,
-                device=device, workers=WORKERS, project="runs/voc_compare",
-                name="baseline_yolo11n", exist_ok=True, amp=True, cache=False
+                data=dataset_yaml,
+                epochs=EPOCHS,
+                imgsz=640,
+                batch=BATCH_SIZE,
+                device=device,
+                workers=WORKERS,
+                project="runs/voc_compare",
+                name="baseline_yolo11n",
+                exist_ok=True,
+                amp=True,
+                cache=False,
             )
             map_base = results_base.box.map
         except Exception as e:
@@ -74,7 +84,7 @@ def main():
             name="ours_pconv",
             exist_ok=True,
             amp=True,
-            cache=False
+            cache=False,
         )
         map_our = results_our.box.map
     except Exception as e:
@@ -94,6 +104,6 @@ def main():
     print(f"{'PConv-Ours':<15} | {map_our:.4f}     | {(map_our - map_base):.4f}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     multiprocessing.freeze_support()
     main()
