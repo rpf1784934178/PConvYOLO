@@ -1,6 +1,6 @@
 import os
+
 from ultralytics import YOLO
-import matplotlib.pyplot as plt
 
 
 def main():
@@ -8,7 +8,9 @@ def main():
     # 1. 路径配置
     # ==========================================
     # 你的 900轮 模型权重路径 (请确认路径正确)
-    weights_path = r"D:\PythonSoftware\code\YoloSsd\ultralytics\runs\voc_compare\ours_pconv_extended_900e\weights\best.pt"
+    weights_path = (
+        r"D:\PythonSoftware\code\YoloSsd\ultralytics\runs\voc_compare\ours_pconv_extended_900e\weights\best.pt"
+    )
 
     # 你的数据集配置文件
     data_yaml = "VOC.yaml"
@@ -31,9 +33,9 @@ def main():
         # plots=True:  强制生成所有图表
         # save_json=True: 保存原始数据方便后续自己画图
         # workers=0:   防止内存溢出报错
-        metrics = model.val(
+        model.val(
             data=data_yaml,
-            split='test',  # 或者 'val'
+            split="test",  # 或者 'val'
             imgsz=640,
             batch=4,  # 以此降低显存压力
             workers=0,  # 内存保护
@@ -43,10 +45,10 @@ def main():
             save_json=True,
             project=project_dir,
             name=name_dir,
-            exist_ok=True  # 覆盖旧结果
+            exist_ok=True,  # 覆盖旧结果
         )
 
-        print(f"\n✅ 图表已全部生成！")
+        print("\n✅ 图表已全部生成！")
         print(f"📂 请打开此文件夹查看图片: {os.path.join(project_dir, name_dir)}")
 
     else:

@@ -8,7 +8,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from ultralytics.nn.autobackend import check_class_names
 from ultralytics.nn.modules import (
@@ -18,7 +18,6 @@ from ultralytics.nn.modules import (
     C2PSA,
     C3,
     C3TR,
-    C3_PConv,
     ELAN1,
     OBB,
     PSA,
@@ -34,6 +33,7 @@ from ultralytics.nn.modules import (
     C2fAttn,
     C2fCIB,
     C2fPSA,
+    C3_PConv,
     C3Ghost,
     C3k2,
     C3x,
@@ -70,7 +70,6 @@ from ultralytics.nn.modules import (
     YOLOESegment,
     v10Detect,
 )
-
 from ultralytics.utils import DEFAULT_CFG_DICT, LOGGER, YAML, colorstr, emojis
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
 from ultralytics.utils.loss import (
@@ -1331,11 +1330,9 @@ class SafeClass:
 
     def __init__(self, *args, **kwargs):
         """Initialize SafeClass instance, ignoring all arguments."""
-        pass
 
     def __call__(self, *args, **kwargs):
         """Run SafeClass instance, ignoring all arguments."""
-        pass
 
 
 class SafeUnpickler(pickle.Unpickler):
